@@ -8,13 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 全体の設定 */
-body {
+/* 全体の設定 */
+html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
     font-family: 'Noto Serif JP', 'Merriweather', serif;
     background: linear-gradient(135deg, rgba(10,10,15,0.95), rgba(25,25,40,0.95)),
-                url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80');
+                url('https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1920&q=80');
     background-size: cover;
     background-attachment: fixed;
     background-position: center;
@@ -22,65 +23,56 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
 }
 
-/* コンテナ */
+/* コンテナ全体 */
 .chat-container {
-    width: 95%;
-    max-width: 900px;
-    height: 90vh;
-    background: rgba(20, 20, 25, 0.7);
-    border: 1px solid rgba(200, 180, 100, 0.5);
-    border-radius: 20px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-width: 900px;
+    background: rgba(20, 20, 25, 0.65);
+    border: 1px solid rgba(210, 190, 120, 0.4);
+    border-radius: 0;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
     backdrop-filter: blur(10px);
     overflow: hidden;
 }
 
 /* ヘッダー */
 .chat-header {
-    background: linear-gradient(90deg, rgba(160,120,50,0.8), rgba(80,60,30,0.6));
+    background: linear-gradient(90deg, rgba(160,120,50,0.85), rgba(80,60,30,0.7));
     color: #fffdf4;
-    padding: 18px 24px;
+    padding: 12px;
     text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 1.1em;
+    font-weight: 700;
     letter-spacing: 1px;
-    text-shadow: 0 0 8px rgba(255,215,140,0.4);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-shadow: 0 0 6px rgba(255,215,140,0.4);
     flex-shrink: 0;
 }
 
-.chat-header h1 {
-    font-size: 1.7em;
-    margin: 0;
-    font-weight: 700;
-}
-
-/* メッセージ領域 */
+/* メッセージエリア */
 .chat-messages {
     flex-grow: 1;
-    padding: 20px;
+    padding: 12px 10px;
     overflow-y: auto;
-    background: radial-gradient(circle at bottom right, rgba(255,255,255,0.03), transparent 70%);
+    background: radial-gradient(circle at bottom right, rgba(255,255,255,0.04), transparent 70%);
 }
 
-/* メッセージ本体 */
+/* 吹き出し構造 */
 .message {
     display: flex;
-    margin-bottom: 15px;
     align-items: flex-start;
-    transition: transform 0.2s ease;
-}
-
-.message:hover {
-    transform: translateY(-2px);
+    margin-bottom: 10px;
+    word-wrap: break-word;
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: linear-gradient(135deg, #a87932, #c49a4d);
     color: white;
@@ -88,54 +80,56 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 10px;
-    box-shadow: 0 0 8px rgba(255,215,120,0.4);
+    margin: 0 6px;
+    flex-shrink: 0;
 }
 
 .message-bubble {
-    max-width: 70%;
-    padding: 12px 18px;
-    border-radius: 18px;
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 16px;
     line-height: 1.6;
-    font-size: 0.95em;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
-    backdrop-filter: blur(6px);
+    font-size: 0.9em;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
-/* Botメッセージ */
-.message.bot-message .message-bubble {
-    background: rgba(250,240,200,0.1);
-    border: 1px solid rgba(255,215,120,0.3);
-    color: #f0e0b6;
-}
-
-/* Userメッセージ */
 .message.user-message {
     justify-content: flex-end;
 }
 
 .message.user-message .message-bubble {
     background: rgba(120,160,200,0.15);
-    border: 1px solid rgba(100,140,200,0.4);
+    border: 1px solid rgba(100,140,200,0.3);
     color: #d9e7ff;
+    border-bottom-right-radius: 4px;
+}
+
+.message.bot-message .message-bubble {
+    background: rgba(250,240,200,0.1);
+    border: 1px solid rgba(255,215,120,0.3);
+    color: #f0e0b6;
+    border-bottom-left-radius: 4px;
 }
 
 /* 入力エリア */
 .chat-input-area {
     display: flex;
-    padding: 15px 20px;
-    background: rgba(30, 30, 40, 0.9);
+    align-items: center;
+    padding: 8px;
+    background: rgba(25,25,30,0.95);
     border-top: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
 }
 
 #messageInput {
     flex-grow: 1;
     border: 1px solid rgba(200,200,200,0.2);
-    border-radius: 10px;
-    padding: 10px 15px;
-    background: rgba(255,255,255,0.1);
+    border-radius: 25px;
+    padding: 10px 14px;
+    font-size: 0.95em;
+    background: rgba(255,255,255,0.08);
     color: #fff;
-    font-size: 1em;
     outline: none;
 }
 
@@ -145,82 +139,83 @@ body {
 
 #sendMessageButton {
     background: linear-gradient(135deg, #a87932, #c49a4d);
-    color: white;
+    color: #fff;
     border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    margin-left: 10px;
+    border-radius: 25px;
+    padding: 10px 16px;
+    margin-left: 8px;
     font-weight: bold;
+    font-size: 0.9em;
     cursor: pointer;
     transition: 0.3s;
-    box-shadow: 0 0 10px rgba(255,215,120,0.3);
+    flex-shrink: 0;
 }
 
 #sendMessageButton:hover {
-    transform: scale(1.05);
     background: linear-gradient(135deg, #c49a4d, #e0b962);
 }
 
 /* フッター */
 .chat-footer {
-    background: rgba(15,15,20,0.9);
-    color: #999;
-    padding: 10px;
+    background: rgba(10,10,15,0.9);
+    color: #888;
+    padding: 6px 10px;
     text-align: center;
-    font-size: 0.8em;
+    font-size: 0.7em;
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ローディングドット */
-.loading-dots span {
-    opacity: 0;
-    animation: loading-dot 1s infinite;
-}
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes loading-dot {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-/* スクロールバー */
+/* スクロールバー（軽量） */
 .chat-messages::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 .chat-messages::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #a87932, #c49a4d);
-    border-radius: 8px;
+    background: rgba(160,120,50,0.7);
+    border-radius: 4px;
 }
 
-/* スマホ対応 */
+/* モバイル最適化 */
 @media (max-width: 768px) {
-    .chat-container {
-        width: 100%;
-        height: 100vh;
-        border-radius: 0;
-        border: none;
+    html, body {
+        height: 100%;
+        overflow: hidden;
     }
 
-    .chat-header h1 {
-        font-size: 1.3em;
+    .chat-container {
+        height: 100vh;
+        width: 100vw;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .chat-messages {
+        padding: 8px;
+    }
+
+    .avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8em;
     }
 
     .message-bubble {
         max-width: 85%;
-        font-size: 0.9em;
-        padding: 10px 14px;
+        padding: 8px 12px;
+        font-size: 0.85em;
     }
 
     #messageInput {
-        font-size: 0.9em;
+        font-size: 0.85em;
         padding: 8px 12px;
     }
 
     #sendMessageButton {
-        padding: 8px 14px;
+        padding: 8px 12px;
+        font-size: 0.85em;
     }
 }
+
 
     </style>
     </head>
