@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高田保馬 AI対話システム</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 全体の設定 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Serif JP', 'Merriweather', serif;
+    background: linear-gradient(135deg, rgba(10,10,15,0.95), rgba(25,25,40,0.95)),
+                url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* コンテナ */
+.chat-container {
+    width: 95%;
+    max-width: 900px;
+    height: 90vh;
+    background: rgba(20, 20, 25, 0.7);
+    border: 1px solid rgba(200, 180, 100, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+/* ヘッダー */
+.chat-header {
+    background: linear-gradient(90deg, rgba(160,120,50,0.8), rgba(80,60,30,0.6));
+    color: #fffdf4;
+    padding: 18px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255,215,140,0.4);
+    flex-shrink: 0;
+}
+
+.chat-header h1 {
+    font-size: 1.7em;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* メッセージ領域 */
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: radial-gradient(circle at bottom right, rgba(255,255,255,0.03), transparent 70%);
+}
+
+/* メッセージ本体 */
+.message {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: flex-start;
+    transition: transform 0.2s ease;
+}
+
+.message:hover {
+    transform: translateY(-2px);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a87932, #c49a4d);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 10px;
+    box-shadow: 0 0 8px rgba(255,215,120,0.4);
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    line-height: 1.6;
+    font-size: 0.95em;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    backdrop-filter: blur(6px);
+}
+
+/* Botメッセージ */
+.message.bot-message .message-bubble {
+    background: rgba(250,240,200,0.1);
+    border: 1px solid rgba(255,215,120,0.3);
+    color: #f0e0b6;
+}
+
+/* Userメッセージ */
+.message.user-message {
+    justify-content: flex-end;
+}
+
+.message.user-message .message-bubble {
+    background: rgba(120,160,200,0.15);
+    border: 1px solid rgba(100,140,200,0.4);
+    color: #d9e7ff;
+}
+
+/* 入力エリア */
+.chat-input-area {
+    display: flex;
+    padding: 15px 20px;
+    background: rgba(30, 30, 40, 0.9);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+#messageInput {
+    flex-grow: 1;
+    border: 1px solid rgba(200,200,200,0.2);
+    border-radius: 10px;
+    padding: 10px 15px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1em;
+    outline: none;
+}
+
+#messageInput::placeholder {
+    color: #aaa;
+}
+
+#sendMessageButton {
+    background: linear-gradient(135deg, #a87932, #c49a4d);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-left: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(255,215,120,0.3);
+}
+
+#sendMessageButton:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #c49a4d, #e0b962);
+}
+
+/* フッター */
+.chat-footer {
+    background: rgba(15,15,20,0.9);
+    color: #999;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.8em;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ローディングドット */
+.loading-dots span {
+    opacity: 0;
+    animation: loading-dot 1s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes loading-dot {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* スクロールバー */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #a87932, #c49a4d);
+    border-radius: 8px;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .chat-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+
+    .chat-header h1 {
+        font-size: 1.3em;
+    }
+
+    .message-bubble {
+        max-width: 85%;
+        font-size: 0.9em;
+        padding: 10px 14px;
+    }
+
+    #messageInput {
+        font-size: 0.9em;
+        padding: 8px 12px;
+    }
+
+    #sendMessageButton {
+        padding: 8px 14px;
+    }
+}
+
+    </style>
+    </head>
+<body>
+    
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>高田保馬 AI対話システム</h1>
+        </header>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="avatar">高田保馬</div>
+                <div class="message-bubble">
+                    <p>私（わたくし）は高田保馬だ。何か学術的な問いかね？</p>
+                    <p class="timestamp">...</p> </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <textarea id="messageInput" placeholder="質問を入力してください..." rows="3"></textarea>
+            <button id="sendMessageButton">送信</button>
+        </div>
+        
+        <footer class="chat-footer">
+            <p>&copy; 2025池田悠耶ー開発 (Powered by Gemini)</p>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const messageInput = document.getElementById('messageInput');
+            const sendMessageButton = document.getElementById('sendMessageButton');
+            const chatMessages = document.getElementById('chatMessages');
+
+            sendMessageButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // Shift+Enterで改行、Enterのみで送信
+                    e.preventDefault(); // デフォルトのEnterによる改行を防ぐ
+                    sendMessage();
+                }
+            });
+
+            // タイムスタンプを生成するヘルパー関数
+            function getCurrentTimestamp() {
+                const now = new Date();
+                return now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            // ページロード時の最初の挨拶メッセージのタイムスタンプを更新
+            const firstTimestamp = document.querySelector('.message.bot-message .timestamp');
+            if (firstTimestamp) {
+                firstTimestamp.textContent = getCurrentTimestamp();
+            }
+
+            // メッセージ送信処理 (本番のfetchを使用)
+            async function sendMessage() {
+                const text = messageInput.value.trim();
+                if (text === '') return;
+
+                // 1. ユーザーメッセージを画面に追加
+                appendMessage(text, 'user');
+                messageInput.value = ''; // 入力欄をクリア
+                messageInput.disabled = true; // 返信が来るまで入力を無効化
+                sendMessageButton.disabled = true; // ボタンも無効化
+
+                // "思考中..." のローディング表示を追加
+                const loadingMessage = appendMessage('...', 'bot', true); // 'true'はローディング中フラグ
+
+
+                try {
+                    // 2. バックエンド(app.py)の /chat エンドポイントにリクエストを送信
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: text }), // メッセージをJSON形式で送信
+                    });
+
+                    if (!response.ok) {
+                        // サーバー側でエラーが発生した場合
+                        throw new Error(`サーバーエラー: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    // 3. サーバーからの返信 (data.reply) を表示
+                    // ローディング表示を削除
+                    chatMessages.removeChild(loadingMessage);
+                    
+                    if (data.reply) {
+                        // 改行を <br> に変換して表示
+                        const formattedReply = data.reply.replace(/\n/g, '<br>');
+                        appendMessage(formattedReply, 'bot');
+                    } else if (data.error) {
+                        appendMessage(`エラー: ${data.error}`, 'bot');
+                    }
+
+                } catch (error) {
+                    // ネットワークエラーなど
+                    chatMessages.removeChild(loadingMessage); // ローディング表示を削除
+                    appendMessage(`通信エラーが発生しました: ${error.message}`, 'bot');
+                } finally {
+                    // 4. 入力欄を再度有効化
+                    messageInput.disabled = false;
+                    sendMessageButton.disabled = false;
+                    messageInput.focus(); // 入力欄にフォーカスを戻す
+                }
+            }
+
+            // メッセージを画面に追加する関数
+            function appendMessage(text, sender, isLoading = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', `${sender}-message`);
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('avatar');
+                avatarDiv.textContent = sender === 'user' ? 'あなた' : '高田保馬';
+
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.classList.add('message-bubble');
+
+                if (isLoading) {
+                    bubbleDiv.innerHTML = `<p class="loading-dots"><span>.</span><span>.</span><span>.</span></p>`;
+                    messageDiv.classList.add('loading'); // ローディング専用CSSのため
+                } else {
+                    bubbleDiv.innerHTML = `<p>${text}</p>`; // innerHTMLを使い、<br>を解釈させる
+                    const timestampDiv = document.createElement('p'); // pタグに変更
+                    timestampDiv.classList.add('timestamp');
+                    timestampDiv.textContent = getCurrentTimestamp();
+                    bubbleDiv.appendChild(timestampDiv);
+                }
+
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(bubbleDiv);
+                chatMessages.appendChild(messageDiv);
+
+                // チャット画面を一番下までスクロール
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                return messageDiv; // ローディング表示を消すために要素を返す
+            }
+        });
+    </script>
+    </body>
+</html>
