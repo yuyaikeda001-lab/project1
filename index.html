@@ -6,18 +6,18 @@
     <title>高田保馬 AI対話システム</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
+ <style>
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: 'Noto Serif JP', 'Merriweather', serif;
-  background: radial-gradient(circle at bottom, #0b0b0b 0%, #1b1a17 100%);
+  /* 歴史感: 全体の背景を、暗い木目や革のような色に */
+  background: #2a231c; 
   display: flex;
   justify-content: center;
   align-items: stretch;
-  color: #eae7dc;
+  color: #dcd7c8; /* 文字色を羊皮紙風に */
   overscroll-behavior: none;
 }
 
@@ -28,10 +28,11 @@ html, body {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, rgba(30, 28, 25, 0.8), rgba(10, 10, 10, 0.9));
-  border: 1px solid rgba(200,170,80,0.4);
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  backdrop-filter: blur(12px);
+  /* 歴史感: 背景をセピア調の暗い茶色に */
+  background: #3b3228;
+  /* 歴史感: 枠線をアンティークゴールドに */
+  border: 1px solid #7a5c32;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.7);
   overflow: hidden;
   border-radius: 10px;
 }
@@ -39,15 +40,16 @@ html, body {
 /* ===== ヘッダー ===== */
 .chat-header {
   flex-shrink: 0;
-  background: linear-gradient(90deg, #c8a14a, #8b6a2f);
-  color: #fffdf4;
+  /* 歴史感: ヘッダーをアンティークゴールドのグラデーションに */
+  background: linear-gradient(90deg, #6b4a24, #4a331a);
+  color: #e6dca9;
   text-align: center;
   font-weight: 700;
   font-size: 1.05em;
   letter-spacing: 0.5px;
   padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  text-shadow: 0 0 5px rgba(255, 210, 100, 0.4);
+  border-bottom: 1px solid rgba(0,0,0,0.2);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
 }
 
 /* ===== メッセージエリア ===== */
@@ -55,7 +57,8 @@ html, body {
   flex: 1;
   overflow-y: auto;
   padding: 18px 14px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(20,20,20,0.2));
+  /* 歴史感: メッセージ背景を暗い背景に */
+  background: rgba(0,0,0,0.2);
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
@@ -65,33 +68,32 @@ html, body {
   display: flex;
   margin-bottom: 14px;
   word-break: break-word;
-  transition: transform 0.2s ease;
-}
-.message:hover {
-  transform: translateY(-1px);
 }
 
-/* Bot側 */
+/* Bot側 (高田保馬) */
 .message.bot-message {
   justify-content: flex-start;
 }
 .message.bot-message .message-bubble {
-  background: rgba(245, 240, 230, 0.85);
-  color: #2c2417;
+  /* 歴史感: Botのセリフを羊皮紙（古い紙）の色に */
+  background: #f4f0e6;
+  color: #3b3225; /* 濃いセピア色の文字 */
+  border: 1px solid #dcdcdc;
   padding: 10px 14px;
   border-radius: 14px 14px 14px 4px;
   font-size: 0.9em;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1);
   max-width: 75%;
 }
 
-/* User側 */
+/* User側 (あなた) */
 .message.user-message {
   justify-content: flex-end;
 }
 .message.user-message .message-bubble {
-  background: linear-gradient(145deg, #1f3c4d, #2b5064);
-  color: #f2efe8;
+  /* 歴史感: ユーザーのセリフを、テーマに合う暗いオリーブ色に */
+  background: linear-gradient(145deg, #4a4a3e, #3a3a32);
+  color: #e_a_e_7_d_c;
   padding: 10px 14px;
   border-radius: 14px 14px 4px 14px;
   font-size: 0.9em;
@@ -102,10 +104,14 @@ html, body {
 /* タイムスタンプ */
 .timestamp {
   font-size: 0.7em;
-  color: #999;
+  color: #888; /* 羊皮紙の上では少し色を濃く */
   margin-top: 4px;
   text-align: right;
 }
+.message.user-message .timestamp {
+  color: #aaa; /* ユーザー側は明るく */
+}
+
 
 /* ===== 入力欄 ===== */
 .chat-input-area {
@@ -113,8 +119,8 @@ html, body {
   display: flex;
   align-items: center;
   padding: 10px;
-  background: rgba(15,15,15,0.95);
-  border-top: 1px solid rgba(200,170,80,0.4);
+  background: #1c1814; /* 全体のトーンに合わせる */
+  border-top: 1px solid #7a5c32; /* アンティークゴールドの線 */
   position: sticky;
   bottom: 0;
   gap: 8px;
@@ -123,12 +129,12 @@ html, body {
 /* 入力フォーム */
 #messageInput {
   flex: 1;
-  border: 1px solid rgba(200,170,80,0.4);
+  border: 1px solid #7a5c32; /* 枠線をアンティークゴールドに */
   border-radius: 25px;
   padding: 10px 14px;
-  font-size: 0.9em;
+  font-size: 1em; /* 基本サイズを 16px (1em) 相当にする */
   outline: none;
-  background: rgba(255,255,255,0.08);
+  background: #3a3228; /* 背景を暗い茶色に */
   color: #f5f0e6;
   transition: border-color 0.3s, background 0.3s;
 }
@@ -138,13 +144,14 @@ html, body {
 }
 
 #messageInput:focus {
-  border-color: #d6b75a;
-  background: rgba(255,255,255,0.12);
+  border-color: #b98b4a; /* フォーカス時に明るいゴールドに */
+  background: #4a4238;
 }
 
 /* 送信ボタン */
 #sendMessageButton {
-  background: linear-gradient(135deg, #c8a14a, #a88536);
+  /* 歴史感: ボタンをアンティークゴールドに */
+  background: linear-gradient(135deg, #7a5c32, #5e4626);
   color: #fff;
   border: none;
   border-radius: 25px;
@@ -155,7 +162,7 @@ html, body {
   transition: all 0.3s ease;
 }
 #sendMessageButton:hover {
-  background: linear-gradient(135deg, #ddb960, #b28d39);
+  background: linear-gradient(135deg, #8b6c42, #6e5636);
   transform: translateY(-1px);
 }
 #sendMessageButton:active {
@@ -167,7 +174,7 @@ html, body {
   width: 5px;
 }
 .chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(200,170,80,0.6);
+  background: rgba(122, 92, 50, 0.7); /* アンティークゴールド */
   border-radius: 4px;
 }
 
@@ -184,20 +191,21 @@ html, body {
     padding: 10px;
   }
   .message-bubble {
-    font-size: 0.85em;
+    font-size: 0.9em; /* 少し小さく */
     max-width: 85%;
   }
+
+  /* ===== ズーム問題の修正 ===== */
   #messageInput {
-    font-size: 0.85em;
-    padding: 8px 12px;
+    /* ズームを防ぐため、フォントサイズを 16px に固定 */
+    font-size: 16px; 
+    padding: 10px 14px; /* パディングを調整 */
   }
   #sendMessageButton {
-    font-size: 0.85em;
-    padding: 8px 12px;
+    padding: 10px 14px; /* 入力欄と高さを合わせる */
   }
 }
-
-    </style>
+</style>
     </head>
 <body>
     
