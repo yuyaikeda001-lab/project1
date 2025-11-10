@@ -6,204 +6,277 @@
     <title>高田保馬 AI対話システム</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
- <style>
+<style>
 html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Noto Serif JP', 'Merriweather', serif;
-  /* 歴史感: 全体の背景を、暗い木目や革のような色に */
-  background: #2a231c; 
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  color: #dcd7c8; /* 文字色を羊皮紙風に */
-  overscroll-behavior: none;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Noto Serif JP', 'Merriweather', serif;
+    background: #2a231c; 
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    color: #dcd7c8;
+    overscroll-behavior: none;
 }
 
 /* ===== メインコンテナ ===== */
 .chat-container {
-  width: 100%;
-  max-width: 480px;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  /* 歴史感: 背景をセピア調の暗い茶色に */
-  background: #3b3228;
-  /* 歴史感: 枠線をアンティークゴールドに */
-  border: 1px solid #7a5c32;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.7);
-  overflow: hidden;
-  border-radius: 10px;
+    width: 100%;
+    max-width: 480px;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: #3b3228;
+    border: 1px solid #7a5c32;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+    overflow: hidden; /* メニュー表示のため */
+    border-radius: 10px;
+    position: relative; /* メニューの基準点 */
 }
 
 /* ===== ヘッダー ===== */
 .chat-header {
-  flex-shrink: 0;
-  /* 歴史感: ヘッダーをアンティークゴールドのグラデーションに */
-  background: linear-gradient(90deg, #6b4a24, #4a331a);
-  color: #e6dca9;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.05em;
-  letter-spacing: 0.5px;
-  padding: 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.2);
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #6b4a24, #4a331a);
+    color: #e6dca9;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.05em;
+    padding: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    
+    display: flex;
+    justify-content: space-between; /* ボタンとスペーサーで両端に寄せる */
+    align-items: center;
 }
+
+/* --- START: レイアウト修正 --- */
+.chat-header h1 {
+    font-size: inherit;
+    margin: 0;
+    /* flex: 1; と padding-left: 40px; を削除 */
+}
+
+/* メニューボタンと同じ幅のスペーサー */
+.header-placeholder {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+/* --- END: レイアウト修正 --- */
+
+
+/* メニューボタン */
+.menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    width: 40px; /* 押しやすいサイズ確保 */
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex-shrink: 0; /* 縮まないように */
+}
+.menu-button .bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: #e6dca9;
+    transition: all 0.3s;
+}
+.menu-button.open .bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.menu-button.open .bar:nth-child(2) {
+    opacity: 0;
+}
+.menu-button.open .bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ナビゲーションメニュー */
+.nav-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(42, 35, 28, 0.95);
+    backdrop-filter: blur(5px);
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.nav-menu.open {
+    transform: translateX(0);
+    opacity: 1;
+}
+.nav-menu a {
+    color: #e6dca9;
+    text-decoration: none;
+    font-size: 1.5em;
+    padding: 20px;
+    font-weight: 700;
+    transition: color 0.3s;
+}
+.nav-menu a:hover {
+    color: #fff;
+}
+.close-menu-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #e6dca9;
+    font-size: 2em;
+    font-family: serif;
+    font-weight: 100;
+    cursor: pointer;
+}
+
+/* (中略) ... メッセージエリア、バブル、アバター、入力欄のCSSは変更なし ... */
 
 /* ===== メッセージエリア ===== */
 .chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 18px 14px;
-  /* 歴史感: メッセージ背景を暗い背景に */
-  background: rgba(0,0,0,0.2);
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 14px;
+    background: rgba(0,0,0,0.2);
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
-
-/* ===== メッセージバブル ===== */
 .message {
-  display: flex;
-  margin-bottom: 14px;
-  word-break: break-word;
+    display: flex;
+    margin-bottom: 14px;
+    word-break: break-word;
+    align-items: flex-start;
 }
-
-/* Bot側 (高田保馬) */
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #666;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+.message.bot-message .avatar {
+    background-image: url('bot-icon.png'); 
+    margin-right: 10px;
+}
+.message.user-message .avatar {
+    background-image: url('user-icon.png');
+    margin-left: 10px;
+}
 .message.bot-message {
-  justify-content: flex-start;
+    justify-content: flex-start;
 }
 .message.bot-message .message-bubble {
-  /* 歴史感: Botのセリフを羊皮紙（古い紙）の色に */
-  background: #f4f0e6;
-  color: #3b3225; /* 濃いセピア色の文字 */
-  border: 1px solid #dcdcdc;
-  padding: 10px 14px;
-  border-radius: 14px 14px 14px 4px;
-  font-size: 0.9em;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1);
-  max-width: 75%;
+    background: #f4f0e6;
+    color: #3b3225;
+    border: 1px solid #dcdcdc;
+    padding: 10px 14px;
+    border-radius: 14px 14px 14px 4px;
+    font-size: 0.9em;
+    max-width: calc(75% - 46px);
 }
-
-/* User側 (あなた) */
 .message.user-message {
-  justify-content: flex-end;
+    justify-content: flex-end;
+    flex-direction: row-reverse; 
 }
 .message.user-message .message-bubble {
-  /* 歴史感: ユーザーのセリフを、テーマに合う暗いオリーブ色に */
-  background: linear-gradient(145deg, #4a4a3e, #3a3a32);
-  color: #e_a_e_7_d_c;
-  padding: 10px 14px;
-  border-radius: 14px 14px 4px 14px;
-  font-size: 0.9em;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  max-width: 75%;
+    background: linear-gradient(145deg, #4a4a3e, #3a3a32);
+    color: #e_a_e_7_d_c;
+    padding: 10px 14px;
+    border-radius: 14px 14px 4px 14px;
+    font-size: 0.9em;
+    max-width: calc(75% - 46px);
 }
-
-/* タイムスタンプ */
 .timestamp {
-  font-size: 0.7em;
-  color: #888; /* 羊皮紙の上では少し色を濃く */
-  margin-top: 4px;
-  text-align: right;
+    font-size: 0.7em;
+    color: #888;
+    margin-top: 4px;
+    text-align: right;
 }
 .message.user-message .timestamp {
-  color: #aaa; /* ユーザー側は明るく */
+    color: #aaa;
 }
-
 
 /* ===== 入力欄 ===== */
 .chat-input-area {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background: #1c1814; /* 全体のトーンに合わせる */
-  border-top: 1px solid #7a5c32; /* アンティークゴールドの線 */
-  position: sticky;
-  bottom: 0;
-  gap: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #1c1814;
+    border-top: 1px solid #7a5c32;
+    gap: 8px;
 }
-
-/* 入力フォーム */
 #messageInput {
-  flex: 1;
-  border: 1px solid #7a5c32; /* 枠線をアンティークゴールドに */
-  border-radius: 25px;
-  padding: 10px 14px;
-  font-size: 1em; /* 基本サイズを 16px (1em) 相当にする */
-  outline: none;
-  background: #3a3228; /* 背景を暗い茶色に */
-  color: #f5f0e6;
-  transition: border-color 0.3s, background 0.3s;
+    flex: 1;
+    border: 1px solid #7a5c32;
+    border-radius: 25px;
+    padding: 10px 14px;
+    font-size: 1em;
+    outline: none;
+    background: #3a3228;
+    color: #f5f0e6;
+    transition: border-color 0.3s, background 0.3s;
 }
-
 #messageInput::placeholder {
-  color: #aaa;
+    color: #aaa;
 }
-
 #messageInput:focus {
-  border-color: #b98b4a; /* フォーカス時に明るいゴールドに */
-  background: #4a4238;
+    border-color: #b98b4a;
+    background: #4a4238;
 }
-
-/* 送信ボタン */
 #sendMessageButton {
-  /* 歴史感: ボタンをアンティークゴールドに */
-  background: linear-gradient(135deg, #7a5c32, #5e4626);
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  padding: 10px 18px;
-  font-weight: 600;
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: all 0.3s ease;
+    background: linear-gradient(135deg, #7a5c32, #5e4626);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
-#sendMessageButton:hover {
-  background: linear-gradient(135deg, #8b6c42, #6e5636);
-  transform: translateY(-1px);
-}
-#sendMessageButton:active {
-  transform: scale(0.96);
-}
-
-/* ===== スクロールバー ===== */
 .chat-messages::-webkit-scrollbar {
-  width: 5px;
+    width: 5px;
 }
 .chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(122, 92, 50, 0.7); /* アンティークゴールド */
-  border-radius: 4px;
+    background: rgba(122, 92, 50, 0.7);
+    border-radius: 4px;
 }
 
 /* ===== モバイル最適化 ===== */
 @media (max-width: 768px) {
-  .chat-container {
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    height: 100dvh;
-  }
-  .chat-header {
-    font-size: 1em;
-    padding: 10px;
-  }
-  .message-bubble {
-    font-size: 0.9em; /* 少し小さく */
-    max-width: 85%;
-  }
-
-  /* ===== ズーム問題の修正 ===== */
-  #messageInput {
-    /* ズームを防ぐため、フォントサイズを 16px に固定 */
-    font-size: 16px; 
-    padding: 10px 14px; /* パディングを調整 */
-  }
-  #sendMessageButton {
-    padding: 10px 14px; /* 入力欄と高さを合わせる */
-  }
+    .chat-container {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        height: 100dvh;
+    }
+    .chat-header h1 {
+        font-size: 1em;
+    }
+    .message-bubble {
+        font-size: 0.9em;
+    }
+    #messageInput {
+        font-size: 16px; 
+    }
 }
 </style>
     </head>
@@ -211,15 +284,21 @@ html, body {
     
     <div class="chat-container">
         <header class="chat-header">
+            <button class="menu-button" id="menuButton">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
             <h1>高田保馬 AI Chat</h1>
-        </header>
+            <div class="header-placeholder"></div>
+            </header>
         
         <div class="chat-messages" id="chatMessages">
             <div class="message bot-message">
-                <div class="avatar">高田保馬</div>
+                <div class="avatar"></div>
                 <div class="message-bubble">
                     <p>私は高田保馬だ。何か学術的な問いかね？</p>
-                    <p class="timestamp">...</p> </div>
+                    <p class="timestamp">入力中...</p> </div>
             </div>
         </div>
         
@@ -227,75 +306,85 @@ html, body {
             <textarea id="messageInput" placeholder="質問を入力してください..." rows="3"></textarea>
             <button id="sendMessageButton">送信</button>
         </div>
-        
-        <footer class="chat-footer">
-            <p>&copy; 2025池田悠耶-開発 (Powered by Gemini API)</p>
-        </footer>
     </div>
+
+    <div class="nav-menu" id="navMenu">
+        <button class="close-menu-button" id="closeMenuButton">&times;</button>
+        <a href="me.html">開発者</a>
+        <a href="about.html">情報</a>
+        </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- START: JSエラー修正 ---
+            // 以下の行のコメントアウトを解除
+            const menuButton = document.getElementById('menuButton');
+            // --- END: JSエラー修正 ---
+
+            const closeMenuButton = document.getElementById('closeMenuButton');
+            const navMenu = document.getElementById('navMenu');
+
+            function toggleMenu() {
+                navMenu.classList.toggle('open');
+                menuButton.classList.toggle('open');
+            }
+
+            menuButton.addEventListener('click', toggleMenu);
+            closeMenuButton.addEventListener('click', toggleMenu);
+            
+            // --- 既存のチャット処理 ---
             const messageInput = document.getElementById('messageInput');
             const sendMessageButton = document.getElementById('sendMessageButton');
             const chatMessages = document.getElementById('chatMessages');
 
             sendMessageButton.addEventListener('click', sendMessage);
             messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { // Shift+Enterで改行、Enterのみで送信
-                    e.preventDefault(); // デフォルトのEnterによる改行を防ぐ
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
                     sendMessage();
                 }
             });
 
-            // タイムスタンプを生成するヘルパー関数
             function getCurrentTimestamp() {
                 const now = new Date();
                 return now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
             }
 
-            // ページロード時の最初の挨拶メッセージのタイムスタンプを更新
             const firstTimestamp = document.querySelector('.message.bot-message .timestamp');
             if (firstTimestamp) {
                 firstTimestamp.textContent = getCurrentTimestamp();
             }
 
-            // メッセージ送信処理 (本番のfetchを使用)
             async function sendMessage() {
                 const text = messageInput.value.trim();
                 if (text === '') return;
 
-                // 1. ユーザーメッセージを画面に追加
                 appendMessage(text, 'user');
-                messageInput.value = ''; // 入力欄をクリア
-                messageInput.disabled = true; // 返信が来るまで入力を無効化
-                sendMessageButton.disabled = true; // ボタンも無効化
+                messageInput.value = '';
+                messageInput.disabled = true;
+                sendMessageButton.disabled = true;
 
-                // "思考中..." のローディング表示を追加
-                const loadingMessage = appendMessage('返信待ち', 'bot', true); // 'true'はローディング中フラグ
-
+                const loadingMessage = appendMessage('返信待ち', 'bot', true);
 
                 try {
-                    // 2. バックエンド(app.py)の /chat エンドポイントにリクエストを送信
                     const response = await fetch('/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ message: text }), // メッセージをJSON形式で送信
+                        body: JSON.stringify({ message: text }),
                     });
 
                     if (!response.ok) {
-                        // サーバー側でエラーが発生した場合
                         throw new Error(`上限に達しました: ${response.statusText}`);
                     }
 
                     const data = await response.json();
 
-                    // 3. サーバーからの返信 (data.reply) を表示
-                    // ローディング表示を削除
                     chatMessages.removeChild(loadingMessage);
                     
                     if (data.reply) {
-                        // 改行を <br> に変換して表示
                         const formattedReply = data.reply.replace(/\n/g, '<br>');
                         appendMessage(formattedReply, 'bot');
                     } else if (data.error) {
@@ -303,35 +392,35 @@ html, body {
                     }
 
                 } catch (error) {
-                    // ネットワークエラーなど
-                    chatMessages.removeChild(loadingMessage); // ローディング表示を削除
+                    chatMessages.removeChild(loadingMessage);
                     appendMessage(`上限に達しました: ${error.message}`, 'bot');
                 } finally {
-                    // 4. 入力欄を再度有効化
                     messageInput.disabled = false;
                     sendMessageButton.disabled = false;
-                    messageInput.focus(); // 入力欄にフォーカスを戻す
+                    messageInput.focus();
                 }
             }
 
-            // メッセージを画面に追加する関数
             function appendMessage(text, sender, isLoading = false) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message', `${sender}-message`);
 
                 const avatarDiv = document.createElement('div');
                 avatarDiv.classList.add('avatar');
-                avatarDiv.textContent = sender === 'user' ? 'あなた' : '高田保馬';
-
+                
+                // --- START: JSエラー修正 ---
+                // 以下の行のコメントアウトを解除
                 const bubbleDiv = document.createElement('div');
+                // --- END: JSエラー修正 ---
+                
                 bubbleDiv.classList.add('message-bubble');
 
                 if (isLoading) {
                     bubbleDiv.innerHTML = `<p class="loading-dots"><span>.</span><span>.</span><span>.</span></p>`;
-                    messageDiv.classList.add('loading'); // ローディング専用CSSのため
+                    messageDiv.classList.add('loading');
                 } else {
-                    bubbleDiv.innerHTML = `<p>${text}</p>`; // innerHTMLを使い、<br>を解釈させる
-                    const timestampDiv = document.createElement('p'); // pタグに変更
+                    bubbleDiv.innerHTML = `<p>${text}</p>`;
+                    const timestampDiv = document.createElement('p');
                     timestampDiv.classList.add('timestamp');
                     timestampDiv.textContent = getCurrentTimestamp();
                     bubbleDiv.appendChild(timestampDiv);
@@ -341,10 +430,9 @@ html, body {
                 messageDiv.appendChild(bubbleDiv);
                 chatMessages.appendChild(messageDiv);
 
-                // チャット画面を一番下までスクロール
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                return messageDiv; // ローディング表示を消すために要素を返す
+                return messageDiv;
             }
         });
     </script>

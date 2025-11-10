@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報 - 高田保馬 AI対話システム</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* index.html と共通のスタイル */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Noto Serif JP', 'Merriweather', serif;
+    background: #2a231c; 
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    color: #dcd7c8;
+    overscroll-behavior: none;
+}
+.chat-container {
+    width: 100%;
+    max-width: 480px;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: #3b3228;
+    border: 1px solid #7a5c32;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+    overflow: hidden;
+    border-radius: 10px;
+}
+.chat-header {
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #6b4a24, #4a331a);
+    color: #e6dca9;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.05em;
+    padding: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-header h1 {
+    font-size: inherit;
+    margin: 0;
+    flex: 1;
+    /* 戻るボタンの幅(40px)だけ右に寄せ、中央揃えにする */
+    padding-left: 40px;
+}
+
+/* 戻るボタンのスタイル */
+.back-button {
+    color: #e6dca9;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: 700;
+    padding: 0 10px;
+    width: 40px; /* h1のpadding-leftと合わせる */
+    box-sizing: border-box; /* paddingを含めて40pxにする */
+    text-align: left;
+}
+
+/* 「情報」タブのスタイル (about-container) */
+.about-container {
+    padding: 24px;
+    color: #dcd7c8;
+    overflow-y: auto;
+    flex: 1; /* スクロールできるように */
+    line-height: 1.8;
+    font-size: 0.95em;
+}
+.about-container h2 {
+    color: #e6dca9;
+    border-bottom: 2px solid #7a5c32;
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+.about-container h3 {
+    color: #b98b4a;
+    margin-top: 25px;
+    font-weight: 700;
+}
+.about-container hr {
+    border: 0;
+    border-top: 1px solid #5a4a32;
+    margin: 25px 0;
+}
+.about-container .chat-footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.8em;
+    color: #888;
+}
+.about-container .chat-footer p {
+    margin: 0;
+}
+.about-container p,
+.about-container li {
+    margin: 8px 0;
+}
+.about-container ul {
+    padding-left: 20px;
+}
+.about-container strong {
+    color: #e6dca9;
+    font-weight: 700;
+}
+
+/* モバイル最適化 */
+@media (max-width: 768px) {
+    .chat-container {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        height: 100dvh;
+    }
+    .chat-header h1 {
+        font-size: 1em;
+    }
+}
+</style>
+</head>
+<body>
+    
+    <div class="chat-container">
+        <header class="chat-header">
+            <a href="index.html" class="back-button">&lt;</a>
+            <h1>このシステムについて</h1>
+        </header>
+        
+        <div class="about-container">
+            
+            <h2>使用技術</h2>
+            <p>このAIチャットは、以下の技術を組み合わせて構築されています。</p>
+            
+            <h3>AI (人工知能)</h3>
+            <ul>
+                <li><strong>Google Gemini API:</strong><br>
+                    中核となるAIモデルです。ユーザーの入力に対して、高田保馬としての応答を生成するために使用されています。</li>
+                <li><strong>システムプロンプト:</strong><br>
+                    AIに対し、高田保馬の人物像、専門分野（社会学・経済学）、そして「勢力説」に基づいた独自の口調や思考を指示する設定（プロンプト）を適用しています。</li>
+            </ul>
+
+            <h3>フロントエンド (画面)</h3>
+            <ul>
+                <li><strong>HTML5:</strong> ページの基本的な骨格を定義しています。</li>
+                <li><strong>CSS3:</strong> アンティークなデザイン、チャットの吹き出し、レスポンシブ対応など、すべての視覚的なスタイルを担当しています。</li>
+                <li><strong>JavaScript:</strong> メッセージの送信、AIからの返信の受信、メニューの開閉など、ページ内の動的な機能を実現しています。</li>
+            </ul>
+
+            <h3>バックエンド (通信)</h3>
+            <ul>
+                <li><strong>サーバーアプリケーション:</strong><br>
+                    ブラウザ（フロントエンド）とGoogleのAIサーバー（Gemini API）を安全に仲介するためのサーバーが稼働しています。APIキーを秘匿し、通信を管理する重要な役割を担っています。</li>
+            </ul>
+
+            <hr>
+
+            <h2>開発者</h2>
+            <p>池田悠耶</p>
+            
+            <hr>
+
+            <h2>API利用に関する注意</h2>
+            <p>本システムはデモンストレーション用のAPI無料枠で動作しています。APIの利用上限に達した場合、予告なくチャット機能が一時的に停止することがあります。</p>
+
+            <footer class="chat-footer">
+                <p>&copy; 2025 池田悠耶-開発</p>
+            </footer>
+        </div>
+
+    </div>
+
+</body>
+</html>

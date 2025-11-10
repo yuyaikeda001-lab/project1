@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開発者について - 高田保馬 AI対話システム</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* index.html / about.html と共通のスタイル */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Noto Serif JP', 'Merriweather', serif;
+    background: #2a231c; 
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    color: #dcd7c8;
+    overscroll-behavior: none;
+}
+.chat-container {
+    width: 100%;
+    max-width: 480px;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: #3b3228;
+    border: 1px solid #7a5c32;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+    overflow: hidden;
+    border-radius: 10px;
+}
+.chat-header {
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #6b4a24, #4a331a);
+    color: #e6dca9;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.05em;
+    padding: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-header h1 {
+    font-size: inherit;
+    margin: 0;
+    flex: 1;
+    padding-left: 40px;
+}
+.back-button {
+    color: #e6dca9;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: 700;
+    padding: 0 10px;
+    width: 40px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+/* 共通のコンテナスタイル */
+.content-container {
+    padding: 24px;
+    color: #dcd7c8;
+    overflow-y: auto;
+    flex: 1;
+    line-height: 1.8;
+    font-size: 0.95em;
+}
+.content-container h2 {
+    color: #e6dca9;
+    border-bottom: 2px solid #7a5c32;
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+.content-container h3 {
+    color: #b98b4a;
+    margin-top: 25px;
+    font-weight: 700;
+}
+.content-container hr {
+    border: 0;
+    border-top: 1px solid #5a4a32;
+    margin: 25px 0;
+}
+.content-container .chat-footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.8em;
+    color: #888;
+}
+.content-container .chat-footer p {
+    margin: 0;
+}
+.content-container p,
+.content-container li {
+    margin: 8px 0;
+}
+.content-container ul {
+    padding-left: 20px;
+    list-style: none; /* リンク用にリストマークを消す */
+}
+.content-container a {
+    color: #e6dca9; /* リンク色 */
+    text-decoration: none;
+}
+.content-container a:hover {
+    text-decoration: underline;
+}
+
+/* モバイル最適化 */
+@media (max-width: 768px) {
+    .chat-container {
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        height: 100dvh;
+    }
+    .chat-header h1 {
+        font-size: 1em;
+    }
+}
+</style>
+</head>
+<body>
+    
+    <div class="chat-container">
+        <header class="chat-header">
+            <a href="index.html" class="back-button">&lt;</a>
+            <h1>開発者について</h1>
+        </header>
+        
+        <div class="content-container">
+            
+            <h2>開発者</h2>
+            
+            <h3>池田悠耶</h3>
+            
+            <hr>
+
+            <h3>連絡先・リンク</h3>
+            <ul>
+                メール：yuya-ikeda@outlook.com
+                </ul>
+            
+            <footer class="chat-footer">
+                <p>&copy; 2025 池田悠耶-開発</p>
+            </footer>
+        </div>
+
+    </div>
+
+</body>
+</html>
