@@ -270,7 +270,7 @@ html, body {
                 sendMessageButton.disabled = true; // ボタンも無効化
 
                 // "思考中..." のローディング表示を追加
-                const loadingMessage = appendMessage('...', 'bot', true); // 'true'はローディング中フラグ
+                const loadingMessage = appendMessage('返信待ち', 'bot', true); // 'true'はローディング中フラグ
 
 
                 try {
@@ -285,7 +285,7 @@ html, body {
 
                     if (!response.ok) {
                         // サーバー側でエラーが発生した場合
-                        throw new Error(`サーバーエラー: ${response.statusText}`);
+                        throw new Error(`上限に達しました: ${response.statusText}`);
                     }
 
                     const data = await response.json();
@@ -299,13 +299,13 @@ html, body {
                         const formattedReply = data.reply.replace(/\n/g, '<br>');
                         appendMessage(formattedReply, 'bot');
                     } else if (data.error) {
-                        appendMessage(`エラー: ${data.error}`, 'bot');
+                        appendMessage(`上限に達しました: ${data.error}`, 'bot');
                     }
 
                 } catch (error) {
                     // ネットワークエラーなど
                     chatMessages.removeChild(loadingMessage); // ローディング表示を削除
-                    appendMessage(`通信エラーが発生しました: ${error.message}`, 'bot');
+                    appendMessage(`上限に達しました: ${error.message}`, 'bot');
                 } finally {
                     // 4. 入力欄を再度有効化
                     messageInput.disabled = false;
