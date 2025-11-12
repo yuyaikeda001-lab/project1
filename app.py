@@ -107,7 +107,7 @@ def build_database():
         vectorstore = DocArrayInMemorySearch.from_documents(texts, embeddings)
         
         # 4. 「検索システム（Retriever）」を作成
-        retriever = vectorstore.as_retriever(search_kwargs={"k": 5}) # 一度に5個の関連段落を検索
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3}) # 一度に3個の関連段落を検索
         
         print("--- データベース構築完了 ---")
 
