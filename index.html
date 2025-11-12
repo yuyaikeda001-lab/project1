@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"> <title>高田保馬 AI対話システム</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>高田保馬 AI対話システム</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -67,16 +68,41 @@ html, body {
   display: flex;
   margin-bottom: 14px;
   word-break: break-word;
+  align-items: flex-start; /* アバターとバブルを上揃えに */
 }
+
+/* ===== 【修正点】テキストアバターのCSS ===== */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4a5a6a; /* Botの背景色 */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.7em; /* 文字サイズを小さく */
+  font-weight: bold;
+  flex-shrink: 0;
+  margin: 0 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  line-height: 1.1; /* 2行になっても詰まるように */
+  text-align: center; /* 中央揃え */
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.message.user-message .avatar {
+  background-color: #7a9e9f; /* ユーザーの背景色 */
+}
+
 
 /* Bot側 (高田保馬) */
 .message.bot-message {
   justify-content: flex-start;
 }
 .message.bot-message .message-bubble {
-  /* 歴史感: Botのセリフを羊皮紙（古い紙）の色に */
   background: #f4f0e6;
-  color: #3b3225; /* 濃いセピア色の文字 */
+  color: #3b3225;
   border: 1px solid #dcdcdc;
   padding: 10px 14px;
   border-radius: 14px 14px 14px 4px;
@@ -88,27 +114,30 @@ html, body {
 /* User側 (あなた) */
 .message.user-message {
   justify-content: flex-end;
+  flex-direction: row-reverse; /* ◀ この行を追加 */
 }
 .message.user-message .message-bubble {
-  /* 歴史感: ユーザーのセリフを、テーマに合う暗いオリーブ色に */
   background: linear-gradient(145deg, #4a4a3e, #3a3a32);
-  color: #eae7dc; /* #e_a_e_7_d_c を修正 */
-  padding: 10px 14px;
-  border-radius: 14px 14px 4px 14px;
-  font-size: 0.9em;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  /* ( ...中略... ) */
   max-width: 75%;
+  /* 修正: 吹き出しの角の丸み (右下をしっぽに) */
+  border-radius: 14px 14px 4px 14px; 
 }
+/* ユーザーメッセージの並び順 (アバターを右に) */
+.message.user-message {
+  flex-direction: row-reverse;
+}
+
 
 /* タイムスタンプ */
 .timestamp {
   font-size: 0.7em;
-  color: #888; /* 羊皮紙の上では少し色を濃く */
+  color: #888;
   margin-top: 4px;
   text-align: right;
 }
 .message.user-message .timestamp {
-  color: #aaa; /* ユーザー側は明るく */
+  color: #aaa;
 }
 
 
@@ -118,8 +147,8 @@ html, body {
   display: flex;
   align-items: center;
   padding: 10px;
-  background: #1c1814; /* 全体のトーンに合わせる */
-  border-top: 1px solid #7a5c32; /* アンティークゴールドの線 */
+  background: #1c1814;
+  border-top: 1px solid #7a5c32;
   position: sticky;
   bottom: 0;
   gap: 8px;
@@ -128,12 +157,12 @@ html, body {
 /* 入力フォーム */
 #messageInput {
   flex: 1;
-  border: 1px solid #7a5c32; /* 枠線をアンティークゴールドに */
+  border: 1px solid #7a5c32;
   border-radius: 25px;
   padding: 10px 14px;
-  font-size: 1em; /* 基本サイズを 16px (1em) 相当にする */
+  font-size: 1em;
   outline: none;
-  background: #3a3228; /* 背景を暗い茶色に */
+  background: #3a3228;
   color: #f5f0e6;
   transition: border-color 0.3s, background 0.3s;
 }
@@ -143,13 +172,12 @@ html, body {
 }
 
 #messageInput:focus {
-  border-color: #b98b4a; /* フォーカス時に明るいゴールドに */
+  border-color: #b98b4a;
   background: #4a4238;
 }
 
 /* 送信ボタン */
 #sendMessageButton {
-  /* 歴史感: ボタンをアンティークゴールドに */
   background: linear-gradient(135deg, #7a5c32, #5e4626);
   color: #fff;
   border: none;
@@ -173,13 +201,13 @@ html, body {
   width: 5px;
 }
 .chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(122, 92, 50, 0.7); /* アンティークゴールド */
+  background: rgba(122, 92, 50, 0.7);
   border-radius: 4px;
 }
 
-/* ===== 【修正点】「入力中...」を点滅させるアニメーション ===== */
+/* 「入力中...」を点滅させるアニメーション */
 .message.loading .message-bubble p {
-    font-style: italic; /* 少し斜体にする */
+    font-style: italic;
     animation: blink-loading 1.5s infinite;
 }
 
@@ -203,18 +231,17 @@ html, body {
     padding: 10px;
   }
   .message-bubble {
-    font-size: 0.9em; /* 少し小さく */
+    font-size: 0.9em;
     max-width: 85%;
   }
 
   /* ===== ズーム問題の修正 ===== */
   #messageInput {
-    /* ズームを防ぐため、フォントサイズを 16px に固定 */
     font-size: 16px; 
-    padding: 10px 14px; /* パディングを調整 */
+    padding: 10px 14px;
   }
   #sendMessageButton {
-    padding: 10px 14px; /* 入力欄と高さを合わせる */
+    padding: 10px 14px;
   }
 }
 </style>
@@ -227,12 +254,14 @@ html, body {
         </header>
         
         <div class="chat-messages" id="chatMessages">
+            
             <div class="message bot-message">
                 <div class="avatar">高田保馬</div>
                 <div class="message-bubble">
                     <p>私は高田保馬だ。何か学術的な問いかね？</p>
                     <p class="timestamp">...</p> </div>
             </div>
+
         </div>
         
         <div class="chat-input-area">
@@ -244,6 +273,7 @@ html, body {
             <p>&copy; 2025池田悠耶-開発</p>
         </footer>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const messageInput = document.getElementById('messageInput');
@@ -252,64 +282,52 @@ html, body {
 
             sendMessageButton.addEventListener('click', sendMessage);
             messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { // Shift+Enterで改行、Enterのみで送信
-                    e.preventDefault(); // デフォルトのEnterによる改行を防ぐ
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
                     sendMessage();
                 }
             });
 
-            // タイムスタンプを生成するヘルパー関数
             function getCurrentTimestamp() {
                 const now = new Date();
                 return now.toLocaleDateString('ja-JP') + ' ' + now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
             }
 
-            // ページロード時の最初の挨拶メッセージのタイムスタンプを更新
             const firstTimestamp = document.querySelector('.message.bot-message .timestamp');
             if (firstTimestamp) {
                 firstTimestamp.textContent = getCurrentTimestamp();
             }
 
-            // メッセージ送信処理 (本番のfetchを使用)
             async function sendMessage() {
                 const text = messageInput.value.trim();
                 if (text === '') return;
 
-                // 1. ユーザーメッセージを画面に追加
                 appendMessage(text, 'user');
-                messageInput.value = ''; // 入力欄をクリア
-                messageInput.disabled = true; // 返信が来るまで入力を無効化
-                sendMessageButton.disabled = true; // ボタンも無効化
+                messageInput.value = '';
+                messageInput.disabled = true;
+                sendMessageButton.disabled = true;
 
-                // ===== 【修正点】「入力中…」に変更 =====
-                const loadingMessage = appendMessage('入力中…', 'bot', true); // 'true'はローディング中フラグ
-
+                // 「入力中…」に変更
+                const loadingMessage = appendMessage('入力中…', 'bot', true);
 
                 try {
-                    // 2. バックエンド(app.py)の /chat エンドポイントにリクエストを送信
                     const response = await fetch('/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ message: text }), // メッセージをJSON形式で送信
+                        body: JSON.stringify({ message: text }),
                     });
 
                     if (!response.ok) {
-                        // サーバー側でエラーが発生した場合
-                        // メッセージを「上限に達しました」から汎用的なものに変更
                         const errorData = await response.json();
                         throw new Error(errorData.error || `サーバーエラーが発生しました (${response.statusText})`);
                     }
 
                     const data = await response.json();
-
-                    // 3. サーバーからの返信 (data.reply) を表示
-                    // ローディング表示を削除
                     chatMessages.removeChild(loadingMessage);
                     
                     if (data.reply) {
-                        // 改行を <br> に変換して表示
                         const formattedReply = data.reply.replace(/\n/g, '<br>');
                         appendMessage(formattedReply, 'bot');
                     } else if (data.error) {
@@ -317,37 +335,39 @@ html, body {
                     }
 
                 } catch (error) {
-                    // ネットワークエラーなど
-                    chatMessages.removeChild(loadingMessage); // ローディング表示を削除
-                    // エラーメッセージを具体的に表示
+                    chatMessages.removeChild(loadingMessage);
                     appendMessage(`エラー: ${error.message}`, 'bot');
                 } finally {
-                    // 4. 入力欄を再度有効化
                     messageInput.disabled = false;
                     sendMessageButton.disabled = false;
-                    messageInput.focus(); // 入力欄にフォーカスを戻す
+                    messageInput.focus();
                 }
             }
 
-            // メッセージを画面に追加する関数
+            // ===== 【修正点】アバターをテキストに戻す =====
             function appendMessage(text, sender, isLoading = false) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message', `${sender}-message`);
 
+                // --- アバター部分を「テキスト」で生成 ---
                 const avatarDiv = document.createElement('div');
                 avatarDiv.classList.add('avatar');
-                avatarDiv.textContent = sender === 'user' ? 'あなた' : '高田保馬';
+                if (sender === 'user') {
+                    avatarDiv.textContent = "あなた"; // ユーザー
+                } else {
+                    avatarDiv.textContent = "高田保馬"; // Bot
+                }
+                // --- アバター生成ここまで ---
 
                 const bubbleDiv = document.createElement('div');
                 bubbleDiv.classList.add('message-bubble');
 
                 if (isLoading) {
-                    // ===== 【修正点】'...' の点滅をやめ、「入力中…」をそのまま表示 =====
-                    bubbleDiv.innerHTML = `<p>${text}</p>`; // '入力中…' が text として渡される
-                    messageDiv.classList.add('loading'); // ローディング専用CSSのため
+                    bubbleDiv.innerHTML = `<p>${text}</p>`; // '入力中…'
+                    messageDiv.classList.add('loading');
                 } else {
-                    bubbleDiv.innerHTML = `<p>${text}</p>`; // innerHTMLを使い、<br>を解釈させる
-                    const timestampDiv = document.createElement('p'); // pタグに変更
+                    bubbleDiv.innerHTML = `<p>${text}</p>`;
+                    const timestampDiv = document.createElement('p');
                     timestampDiv.classList.add('timestamp');
                     timestampDiv.textContent = getCurrentTimestamp();
                     bubbleDiv.appendChild(timestampDiv);
@@ -357,10 +377,9 @@ html, body {
                 messageDiv.appendChild(bubbleDiv);
                 chatMessages.appendChild(messageDiv);
 
-                // チャット画面を一番下までスクロール
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                return messageDiv; // ローディング表示を消すために要素を返す
+                return messageDiv;
             }
         });
     </script>
