@@ -2,11 +2,10 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高田保馬 AI対話システム</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"> <title>高田保馬 AI対話システム</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
- <style>
+<style>
 html, body {
   margin: 0;
   padding: 0;
@@ -93,7 +92,7 @@ html, body {
 .message.user-message .message-bubble {
   /* 歴史感: ユーザーのセリフを、テーマに合う暗いオリーブ色に */
   background: linear-gradient(145deg, #4a4a3e, #3a3a32);
-  color: #e_a_e_7_d_c;
+  color: #eae7dc; /* #e_a_e_7_d_c を修正 */
   padding: 10px 14px;
   border-radius: 14px 14px 4px 14px;
   font-size: 0.9em;
@@ -178,6 +177,19 @@ html, body {
   border-radius: 4px;
 }
 
+/* ===== 【修正点】「入力中...」を点滅させるアニメーション ===== */
+.message.loading .message-bubble p {
+    font-style: italic; /* 少し斜体にする */
+    animation: blink-loading 1.5s infinite;
+}
+
+@keyframes blink-loading {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+
 /* ===== モバイル最適化 ===== */
 @media (max-width: 768px) {
   .chat-container {
@@ -219,7 +231,7 @@ html, body {
                 <div class="avatar">高田保馬</div>
                 <div class="message-bubble">
                     <p>私は高田保馬だ。何か学術的な問いかね？</p>
-                    <p class="timestamp">入力中...</p> </div>
+                    <p class="timestamp">...</p> </div>
             </div>
         </div>
         
@@ -229,7 +241,7 @@ html, body {
         </div>
         
         <footer class="chat-footer">
-            <p>&copy; 2025池田悠耶-開発 (Powered by Gemini API)</p>
+            <p>&copy; 2025池田悠耶-開発</p>
         </footer>
     </div>
     <script>
@@ -269,8 +281,8 @@ html, body {
                 messageInput.disabled = true; // 返信が来るまで入力を無効化
                 sendMessageButton.disabled = true; // ボタンも無効化
 
-                // "思考中..." のローディング表示を追加
-                const loadingMessage = appendMessage('返信待ち', 'bot', true); // 'true'はローディング中フラグ
+                // ===== 【修正点】「入力中…」に変更 =====
+                const loadingMessage = appendMessage('入力中…', 'bot', true); // 'true'はローディング中フラグ
 
 
                 try {
@@ -285,7 +297,9 @@ html, body {
 
                     if (!response.ok) {
                         // サーバー側でエラーが発生した場合
-                        throw new Error(`上限に達しました: ${response.statusText}`);
+                        // メッセージを「上限に達しました」から汎用的なものに変更
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `サーバーエラーが発生しました (${response.statusText})`);
                     }
 
                     const data = await response.json();
@@ -299,13 +313,14 @@ html, body {
                         const formattedReply = data.reply.replace(/\n/g, '<br>');
                         appendMessage(formattedReply, 'bot');
                     } else if (data.error) {
-                        appendMessage(`上限に達しました: ${data.error}`, 'bot');
+                        appendMessage(`エラー: ${data.error}`, 'bot');
                     }
 
                 } catch (error) {
                     // ネットワークエラーなど
                     chatMessages.removeChild(loadingMessage); // ローディング表示を削除
-                    appendMessage(`上限に達しました: ${error.message}`, 'bot');
+                    // エラーメッセージを具体的に表示
+                    appendMessage(`エラー: ${error.message}`, 'bot');
                 } finally {
                     // 4. 入力欄を再度有効化
                     messageInput.disabled = false;
@@ -327,7 +342,8 @@ html, body {
                 bubbleDiv.classList.add('message-bubble');
 
                 if (isLoading) {
-                    bubbleDiv.innerHTML = `<p class="loading-dots"><span>.</span><span>.</span><span>.</span></p>`;
+                    // ===== 【修正点】'...' の点滅をやめ、「入力中…」をそのまま表示 =====
+                    bubbleDiv.innerHTML = `<p>${text}</p>`; // '入力中…' が text として渡される
                     messageDiv.classList.add('loading'); // ローディング専用CSSのため
                 } else {
                     bubbleDiv.innerHTML = `<p>${text}</p>`; // innerHTMLを使い、<br>を解釈させる
