@@ -61,7 +61,7 @@ SYSTEM_INSTRUCTION = """
 # -----------------------------------------------------
 # 【！】ステップ1：PDFから「図書館（DB）」を構築する
 # -----------------------------------------------------
-PDF_PATH = "takata_data.pdf" # ◀ あなたのPDFファイル名
+PDF_PATH = "aichat001.pdf" # ◀ あなたのPDFファイル名
 retriever = None
 
 def build_database():
