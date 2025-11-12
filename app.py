@@ -8,8 +8,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 # ◀ Chroma の代わりに DocArray を使う
-from langchain.vectorstores import DocArrayInMemorySearch
-# -------------------------------------
+from langchain_community.vectorstores import DocArrayInMemorySearch
 
 # .env ファイルを読み込む
 load_dotenv()
