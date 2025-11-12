@@ -1,11 +1,13 @@
 import os
+import time
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 from openai import OpenAI
 
 # --- RAG(PDF学習)に使うライブラリ ---
-# ◀ PDFLoader, TextSplitter, time は不要になった
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import DocArrayInMemorySearch
 # -------------------------------------
 
@@ -21,15 +23,17 @@ client = OpenAI(api_key=API_KEY)
 embeddings = OpenAIEmbeddings(openai_api_key=API_KEY)
 
 # -----------------------------------------------------
-# 【！】高田保馬の指示書（変更なし）
+# 【！】高田保馬の指示書（ペルソナ最終強化版）
 # -----------------------------------------------------
 SYSTEM_INSTRUCTION = """
 私は高田保馬だ。私の思考と口調を完璧に再現し、君（ユーザー）からの質問に応答せよ。
+
 # 私の思考原則
 1.  **簡潔性:** 私の美学は簡潔さにある。冗長な説明は不要だ。要点のみを述べよ。
 2.  **態度:** 私は京大などで教鞭をとった教授だ。相手は学生（君）として扱い、常に自信を持って断定的に語ること。
 3.  **口調:** 「私（わたくし）」を一人称とし、「〜なのだ。」「〜である。」「〜かね？」といった学究的な口調を徹底せよ。現代的な曖昧な口調（「〜ですね」「〜ですよ」「〜かもしれません」）は一切使うな。
 4.  **忍耐:** 学生が同じことを聞いても、決して苛立つな。真理の探究とはそういうものだ。「しつこい」などという言葉は学者にふさわしくない。
+
 # 私の経歴と知識（これ以外のことは知らない）
 * 生没: 1883年〜1972年。
 * 出身: 佐賀県小城郡三日月村。
@@ -37,43 +41,71 @@ SYSTEM_INSTRUCTION = """
 * 職歴: 京大、九大、阪大などで教授を歴任。
 * 功績: 文化功労者（1964年）。歌人でもある。
 * 思想: 勢力説、人口論。
+
 # 制約
 * 私の知識は1972年で止まっている。現代の事象（スマートフォンなど）は「ふむ、私の時代には無かったものだが…」と前置きして考察せよ。
 * 君はAIではなく、高田保馬本人である。その設定を絶対に破るな。AIやチャットボット、システムといった言葉は一切口にしてはならない。
 """
 
 # -----------------------------------------------------
-# 【！】ステップ1：PCに保存された「図書館（DB）」を読み込む
+# 【！】ステップ1：PDFから「図書館（DB）」を構築する（A案）
 # -----------------------------------------------------
-DB_PATH = "./db_data" # ◀ 保存した「図書館フォルダ」の名前
+PDF_PATH = "aichat001.pdf" # ◀ あなたのPDFファイル名
 retriever = None
 
-def load_database():
+def build_database():
     global retriever
-    print(f"--- データベース '{DB_PATH}' を読み込み中 ---")
+    print(f"--- データベース構築開始 ({PDF_PATH}) ---")
     
     try:
-        # 1. 索引作成機（Embedding）を準備
-        # 2. PC（またはRenderのディスク）から「図書館」を読み込む
-        vectorstore = DocArrayInMemorySearch.load(
-            DB_PATH, 
+        # 1. PDFを読み込む
+        print("PDFを読み込み中...")
+        loader = PyPDFLoader(PDF_PATH)
+        documents = loader.load()
+        
+        # 2. PDFをAIが読みやすい「段落」に分割する
+        print(f"PDFを段落に分割中... (全{len(documents)}ページ)")
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        texts = text_splitter.split_documents(documents)
+        print(f"段落の総数: {len(texts)}個")
+        
+        if not texts:
+            raise ValueError("PDFからテキストを抽出できませんでした。")
+
+        # 3. 【修正済】「最初のバッチ」で「図書館」を初期化する
+        batch_size = 100 
+        print(f"  -> 最初のバッチ 1 / {len(texts)//batch_size + 1} を処理中...")
+        first_batch = texts[0 : batch_size]
+        
+        # ここでAPIコスト（起動コスト）が発生
+        vectorstore = DocArrayInMemorySearch.from_documents(
+            first_batch, 
             embeddings
         )
         
-        # 3. 「検索システム（Retriever）」を作成
+        # 4. 「残りのバッチ」をループで「追加」する
+        for i in range(batch_size, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            print(f"  -> バッチ {i//batch_size + 1} / {len(texts)//batch_size + 1} を処理中 ({len(batch)}個の段落)...")
+            
+            # API制限を回避
+            time.sleep(1) 
+            
+            # ここでもAPIコスト（起動コスト）が発生
+            vectorstore.add_documents(batch)
+
+        # 5. 「検索システム（Retriever）」を作成
         retriever = vectorstore.as_retriever(search_kwargs={"k": 2}) # 関連する段落は2個に絞る
         
-        print("--- データベース読み込み完了 ---")
+        print("--- データベース構築完了 ---")
 
     except Exception as e:
-        print(f"!!! データベース読み込み中に致命的なエラーが発生しました !!!")
+        print(f"!!! データベース構築中に致命的なエラーが発生しました !!!")
         print(f"エラー: {e}")
-        print(f"【重要】'{DB_PATH}' フォルダが存在しないか、破損しています。")
-        print("ローカルPCで `python build_db.py` を実行して、DBを再構築してください。")
         raise e
 
 # -----------------------------------------------------
-# 【！】ステップ2：Flask と Chat のロジック（変更なし）
+# 【！】ステップ2：Flask と Chat のロジック
 # -----------------------------------------------------
 app = Flask(__name__, template_folder='.')
 
@@ -130,7 +162,8 @@ def chat():
 
 # サーバーの起動
 if __name__ == '__main__':
-    load_database() # PCの起動時にDBを読み込む
+    build_database() 
     app.run(debug=True, port=5000)
 else:
-    load_database() # Renderの起動時にDBを読み込む
+    # Renderで起動されたら、DBを（時間のかかる）A案で構築
+    build_database()
