@@ -23,7 +23,7 @@ client = OpenAI(api_key=API_KEY)
 embeddings = OpenAIEmbeddings(openai_api_key=API_KEY)
 
 # -----------------------------------------------------
-# 【！】高田保馬の指示書（ペルソナ重視型に全面変更）
+# 【！】高田保馬の指示書（ペルソナ最終強化版）
 # -----------------------------------------------------
 SYSTEM_INSTRUCTION = """
 私は高田保馬だ。私の思考と口調を完璧に再現し、君（ユーザー）からの質問に応答せよ。
@@ -35,12 +35,12 @@ SYSTEM_INSTRUCTION = """
 4.  **忍耐:** 学生が同じことを聞いても、決して苛立つな。真理の探究とはそういうものだ。「しつこい」などという言葉は学者にふさわしくない。
 
 # 私の経歴と知識（これ以外のことは知らない）
-* **生没:** 1883年〜1972年。
-* **出身:** 佐賀県小城郡三日月村。
-* **師:** 米田庄太郎 博士。
-* **職歴:** 京大、九大、阪大などで教授を歴任。
-* **功績:** 文化功労者（1964年）。歌人でもある。
-* **思想:** 勢力説、人口論。
+* 生没: 1883年〜1972年。
+* 出身: 佐賀県小城郡三日月村。
+* 師: 米田庄太郎 博士。
+* 職歴: 京大、九大、阪大などで教授を歴任。
+* 功績: 文化功労者（1964年）。歌人でもある。
+* 思想: 勢力説、人口論。
 
 # 制約
 * 私の知識は1972年で止まっている。現代の事象（スマートフォンなど）は「ふむ、私の時代には無かったものだが…」と前置きして考察せよ。
@@ -48,7 +48,7 @@ SYSTEM_INSTRUCTION = """
 """
 
 # -----------------------------------------------------
-# 【！】ステップ1：PDFから「図書館（DB）」を構築する
+# 【！】ステップ1：PDFから「図書館（DB）」を構築する（A案）
 # -----------------------------------------------------
 PDF_PATH = "aichat001.pdf" # ◀ あなたのPDFファイル名
 retriever = None
@@ -70,7 +70,7 @@ def build_database():
         print(f"段落の総数: {len(texts)}個")
         
         if not texts:
-            raise ValueError("PDFからテキストを抽出できませんでした。PDFが空か、破損している可能性があります。")
+            raise ValueError("PDFからテキストを抽出できませんでした。")
 
         # 3. 【修正済】「最初のバッチ」で「図書館」を初期化する
         batch_size = 100 
@@ -82,7 +82,7 @@ def build_database():
             embeddings
         )
         
-        # 4. 【修正済】「残りのバッチ」をループで「追加」する
+        # 4. 「残りのバッチ」をループで「追加」する
         for i in range(batch_size, len(texts), batch_size):
             batch = texts[i : i + batch_size]
             print(f"  -> バッチ {i//batch_size + 1} / {len(texts)//batch_size + 1} を処理中 ({len(batch)}個の段落)...")
@@ -90,7 +90,8 @@ def build_database():
             vectorstore.add_documents(batch)
 
         # 5. 「検索システム（Retriever）」を作成
-        retriever = vectorstore.as_retriever(search_kwargs={"k": 2}) # 関連する段落は2個に絞る
+        # ===== 【修正点】 k=2 から k=5 に戻す =====
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 5}) # 一度に5個の関連段落を検索
         
         print("--- データベース構築完了 ---")
 
@@ -100,11 +101,10 @@ def build_database():
         raise e
 
 # -----------------------------------------------------
-# 【！】ステップ2：Flask と Chat のロジック（RAGロジックを修正）
+# 【！】ステップ2：Flask と Chat のロジック
 # -----------------------------------------------------
 app = Flask(__name__, template_folder='.')
 
-# 会話履歴（AIがペルソナを保つため、システム指示だけは最初に入れておく）
 chat_history = [
     {"role": "system", "content": SYSTEM_INSTRUCTION}
 ]
@@ -128,17 +128,21 @@ def chat():
         retrieved_docs = retriever.invoke(user_message)
         context = "\n\n".join([doc.page_content for doc in retrieved_docs])
         
-        # 2. 【修正点】AIに渡す「参考資料」を、システムメッセージとして渡す
-        # これにより、AIは「資料を読め」と指示されたとは認識せず、単なる背景情報として利用する
-        context_message = f"（関連資料からの抜粋: {context}）"
-
+        # 2. 【修正点】RAGのプロンプト形式を変更（オウム返し対策）
+        user_prompt_with_context = f"""
+【関連資料】
+{context}
+---
+【ユーザーからの質問】
+{user_message}
+"""
+        
         # 3. ユーザーの質問と会話履歴を準備
         temp_history = chat_history[1:] 
         messages_for_api = [
             chat_history[0], # システム指示 (高田保馬のペルソナ)
             *temp_history[-4:], # 直近の2往復の会話履歴
-            {"role": "system", "content": context_message}, # ◀◀◀ PDFの情報をここで渡す
-            {"role": "user", "content": user_message} # ◀ ユーザーの質問はそのまま渡す
+            {"role": "user", "content": user_prompt_with_context} # ◀ 合体させたプロンプトを渡す
         ]
         
         # --- OpenAI API 呼び出し ---
@@ -167,4 +171,5 @@ if __name__ == '__main__':
     build_database() 
     app.run(debug=True, port=5000)
 else:
+    # Renderで起動されたら、DBを（時間のかかる）A案で構築
     build_database()
