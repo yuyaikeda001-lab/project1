@@ -1,5 +1,5 @@
 import os
-import time # ◀ 処理の合間に待機するため
+import time
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -55,7 +55,7 @@ SYSTEM_INSTRUCTION = """
 """
 
 # -----------------------------------------------------
-# 【！】ステップ1：PDFから「図書館（DB）」を構築する（バッチ処理版）
+# 【！】ステップ1：PDFから「図書館（DB）」を構築する（バッチ処理・修正版）
 # -----------------------------------------------------
 PDF_PATH = "aichat001.pdf" # ◀ あなたのPDFファイル名
 retriever = None
@@ -76,21 +76,28 @@ def build_database():
         texts = text_splitter.split_documents(documents)
         print(f"段落の総数: {len(texts)}個")
         
-        # 3. 【修正点】空の「図書館」をまず作成
-        print("空のデータベースを初期化中...")
-        vectorstore = DocArrayInMemorySearch(embedding=embeddings)
-        
-        # 4. 【修正点】段落を「バッチ（小分け）」にして、少しずつOpenAIに送信
+        if not texts:
+            raise ValueError("PDFからテキストを抽出できませんでした。PDFが空か、破損している可能性があります。")
+
+        # 3. 【修正点】「最初のバッチ」で「図書館」を初期化する
         batch_size = 100 # 100個の段落ごとにAPIを呼び出す
-        for i in range(0, len(texts), batch_size):
+        print(f"  -> 最初のバッチ 1 / {len(texts)//batch_size + 1} を処理中...")
+        first_batch = texts[0 : batch_size]
+        
+        vectorstore = DocArrayInMemorySearch.from_documents(
+            first_batch, 
+            embeddings
+        )
+        
+        # 4. 【修正点】「残りのバッチ」をループで「追加」する
+        for i in range(batch_size, len(texts), batch_size):
             batch = texts[i : i + batch_size]
             print(f"  -> バッチ {i//batch_size + 1} / {len(texts)//batch_size + 1} を処理中 ({len(batch)}個の段落)...")
             
             # OpenAIのAPI制限（1分あたり）に引っかからないよう、少し待機
-            if i > 0:
-                time.sleep(1) # 1秒待機
+            time.sleep(1) 
                 
-            # バッチをDBに追加（ここでOpenAIのEmbedding APIが呼ばれる）
+            # バッチをDBに追加
             vectorstore.add_documents(batch)
 
         # 5. 「検索システム（Retriever）」を作成
@@ -126,12 +133,10 @@ def chat():
     try:
         user_message = request.json['message']
         
-        # 1. 【RAG】PDFの「図書館」から関連情報を検索
         print(f"検索クエリ: {user_message}")
         retrieved_docs = retriever.invoke(user_message)
         context = "\n\n".join([doc.page_content for doc in retrieved_docs])
         
-        # 2. AIに渡すプロンプトを作成
         prompt = f"""
 以下は、君（高田保馬）が質問に答えるための「参考資料」だ。
 この資料に基づいて、学生（ユーザー）の質問に答えなさい。
@@ -144,15 +149,13 @@ def chat():
 学生からの質問: {user_message}
 """
         
-        # 3. ユーザーの質問（と参考資料）を履歴に追加
         temp_history = chat_history[1:] 
         messages_for_api = [
             chat_history[0], 
-            *temp_history[-4:], # 直近の2往復（4件）の会話履歴
+            *temp_history[-4:], 
             {"role": "user", "content": prompt} 
         ]
         
-        # --- OpenAI API 呼び出し ---
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages_for_api 
@@ -160,7 +163,6 @@ def chat():
         
         bot_message = response.choices[0].message.content
         
-        # 実際の会話履歴を更新
         chat_history.append({"role": "user", "content": user_message}) 
         chat_history.append({"role": "assistant", "content": bot_message})
 
