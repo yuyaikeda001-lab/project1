@@ -6,7 +6,7 @@ from openai import OpenAI
 # --- RAG(PDF学習)に使うライブラリ ---
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_openai import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 # ◀ Chroma の代わりに DocArray を使う
 from langchain.vectorstores import DocArrayInMemorySearch
 # -------------------------------------
